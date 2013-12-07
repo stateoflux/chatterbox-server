@@ -36,12 +36,16 @@ exports.handleRequest = function(request, response) {
 
   // Request filter
   if (request.method === 'POST') {
-    message = 'You sent a message!';
+    message = 'Client sent a message!';
 
-    // request.on('data', function(chunk) {
-    //   console.log("received data");
-    //   postMessage = postMessage + chunk;
-    // });
+    request.setEncoding('utf8');
+
+    request.on('data', function(chunk) {
+      console.log("received data");
+      console.log(chunk);
+      _messages.push(chunk);
+      // postMessage = postMessage + chunk;
+    });
 
   } else if (request.method === 'GET' && urlSplicer(request.url) === '/1/classes/chatterbox') {
     console.log("requesting messages");
@@ -55,14 +59,18 @@ exports.handleRequest = function(request, response) {
 
   headers['Content-Type'] = "text/json";
 
-  /* .writeHead() tells our server what HTTP status code to send back */
-  response.writeHead(statusCode, headers);
 
   /* Make sure to always call response.end() - Node will not send
    * anything back to the client until you do. The string you pass to
    * response.end() will be the body of the response - i.e. what shows
    * up in the browser.*/
-  response.end(message);
+  request.on('end', function() {
+    /* .writeHead() tells our server what HTTP status code to send back */
+    response.writeHead(statusCode, headers);
+
+    response.end(message);
+  });
+  
 };
 
 /* These headers will allow Cross-Origin Resource Sharing (CORS).
