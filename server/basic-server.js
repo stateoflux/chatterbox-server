@@ -8,6 +8,7 @@ var requestHandler = require("./request-handler");
  * so we'll use a higher port number that is not likely to be taken: */
 var port = 8080;
 
+
 /* For now, since you're running this server on your local machine,
  * we'll have it listen on the IP address 127.0.0.1, which is a
  * special address that always refers to localhost. */
@@ -19,6 +20,7 @@ will, unsurprisingly, handle all incoming requests. (ps: 'handleRequest' is in t
 Lastly, we tell the server we made to listen on the given port and IP. */
 var server = http.createServer(requestHandler.handleRequest);
 console.log("Listening on http://" + ip + ":" + port);
+
 server.listen(port, ip);
 
 /* To start this server, run:
