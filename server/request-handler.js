@@ -11,7 +11,7 @@ var chatMessage = {
      };
 
 var _messages = [chatMessage];
-var data = { results: _messages };
+var messageData = { results: _messages };
 
 
 exports.handleRequest = function(request, response) {
@@ -43,13 +43,12 @@ exports.handleRequest = function(request, response) {
     request.on('data', function(chunk) {
       console.log("received data");
       console.log(chunk);
-      _messages.push(chunk);
-      // postMessage = postMessage + chunk;
+      _messages.push(JSON.parse(chunk));
     });
 
   } else if (request.method === 'GET' && urlSplicer(request.url) === '/1/classes/chatterbox') {
     console.log("requesting messages");
-    message = JSON.stringify(data);
+    message = JSON.stringify(messageData);
 
   }
 
@@ -70,7 +69,6 @@ exports.handleRequest = function(request, response) {
 
     response.end(message);
   });
-  
 };
 
 /* These headers will allow Cross-Origin Resource Sharing (CORS).
