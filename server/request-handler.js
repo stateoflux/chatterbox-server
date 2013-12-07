@@ -10,7 +10,7 @@ var chatMessage = {
        'roomname': 'taqueria'
      };
 
-var _messages = [];
+var _messages = [chatMessage];
 
 var messageData = { results: _messages };
 
@@ -27,7 +27,9 @@ exports.handleRequest = function(request, response) {
     var index = url.indexOf('?');
     return url.slice(0,index);
   };
-  var responseBody;
+
+  // if responseBody is not defined below, this is the default body
+  var responseBody = [];
 
   console.log("Serving request type " + request.method + " for url " + request.url);
 
@@ -48,11 +50,13 @@ exports.handleRequest = function(request, response) {
 
     if (request.url === '/classes/messages') {
       responseBody = _messages;
-    } else if(request.url === '/classes/room') {
-      responseBody = '';  // function to filter messages
+    } else if(request.url === '/classes/room1') {
+      responseBody = _messages;  // function to filter messages
     } else {
       statusCode = 404;
     }
+  } else if (request.method === 'OPTIONS') {
+    statusCode = 200;
   }
 
   /* Without this line, this server wouldn't work. See the note
@@ -70,7 +74,7 @@ exports.handleRequest = function(request, response) {
    * anything back to the client until you do. The string you pass to
    * response.end() will be the body of the response - i.e. what shows
    * up in the browser.*/
-    response.end(JSON.stringify(responseBody));
+    response.end(JSON.stringify({results: responseBody}));
   });
 };
 

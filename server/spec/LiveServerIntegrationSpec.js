@@ -4,6 +4,7 @@ describe("Live Node Chat Server", function() {
  it("Should respond to get requests for /log", function(done) {
    request("http://127.0.0.1:8080/classes/messages",
            function(error, response, body) {
+             // console.log(error, response, body);
              expect(body).toEqual("[]");
              done();
            });
