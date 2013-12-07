@@ -10,7 +10,8 @@ var chatMessage = {
        'roomname': 'taqueria'
      };
 
-var _messages = [chatMessage];
+var _messages = [];
+
 var messageData = { results: _messages };
 
 
@@ -26,30 +27,32 @@ exports.handleRequest = function(request, response) {
     var index = url.indexOf('?');
     return url.slice(0,index);
   };
+  var responseBody;
 
   console.log("Serving request type " + request.method + " for url " + request.url);
 
-  var statusCode = 200;
-
-  var message = 'Hello, World!';
-  var postMessage = '';
+  var statusCode = 404;
 
   // Request filter
   if (request.method === 'POST') {
-    message = 'Client sent a message!';
-
+    statusCode = 201;
     request.setEncoding('utf8');
 
     request.on('data', function(chunk) {
-      console.log("received data");
-      console.log(chunk);
       _messages.push(JSON.parse(chunk));
     });
 
-  } else if (request.method === 'GET' && urlSplicer(request.url) === '/1/classes/chatterbox') {
+  } else if (request.method === 'GET') {
     console.log("requesting messages");
-    message = JSON.stringify(messageData);
+    statusCode = 200;
 
+    if (request.url === '/classes/messages') {
+      responseBody = _messages;
+    } else if(request.url === '/classes/room') {
+      responseBody = '';  // function to filter messages
+    } else {
+      statusCode = 404;
+    }
   }
 
   /* Without this line, this server wouldn't work. See the note
@@ -58,16 +61,16 @@ exports.handleRequest = function(request, response) {
 
   headers['Content-Type'] = "text/json";
 
+  // once request finishes sending, we can send response via this callback function
+  request.on('end', function() {
+    /* .writeHead() tells our server what HTTP status code to send back */
+    response.writeHead(statusCode, headers);
 
   /* Make sure to always call response.end() - Node will not send
    * anything back to the client until you do. The string you pass to
    * response.end() will be the body of the response - i.e. what shows
    * up in the browser.*/
-  request.on('end', function() {
-    /* .writeHead() tells our server what HTTP status code to send back */
-    response.writeHead(statusCode, headers);
-
-    response.end(message);
+    response.end(JSON.stringify(responseBody));
   });
 };
 
