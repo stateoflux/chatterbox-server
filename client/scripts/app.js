@@ -51,6 +51,7 @@ var makeController = function() {
         for (var i = messages.length - 1; i > messages.length - 20; i--) {
           // debugger;
           console.log("renderMessages: " + that.currentRoom);
+          // debugger;
           var msgHTML=  messages[i].renderMessage(that.currentRoom);
           $chatSession = $('.chat-session');
           if (msgHTML) {

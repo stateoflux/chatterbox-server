@@ -11,6 +11,7 @@ var chatMessage = {
      };
 
 var _messages = [chatMessage];
+var data = { results: _messages };
 
 
 exports.handleRequest = function(request, response) {
@@ -44,7 +45,7 @@ exports.handleRequest = function(request, response) {
 
   } else if (request.method === 'GET' && urlSplicer(request.url) === '/1/classes/chatterbox') {
     console.log("requesting messages");
-    message = JSON.stringify(_messages);
+    message = JSON.stringify(data);
 
   }
 
