@@ -1,5 +1,5 @@
 // YOUR CODE HERE:
-var url = "https://api.parse.com/1/classes/chatterbox";
+var url = "http://127.0.0.1:8080/1/classes/chatterbox";
 var messages = []; 
 var rooms = {};
 var users = {};
@@ -55,10 +55,10 @@ var makeController = function() {
           $chatSession = $('.chat-session');
           if (msgHTML) {
             $chatSession.append($(msgHTML));
-            $chatSession.prop('scrollTop', $chatSession.prop('scrollHeight'))
+            $chatSession.prop('scrollTop', $chatSession.prop('scrollHeight'));
           }
-        };   
-      });  
+        }
+      });
     },
   
     sendMessage: function(message) {
@@ -107,6 +107,7 @@ $(document).ready(function() {
       populateSelect();
     }
   }, 2000);
+
   // populateSelect();
 
   // Submit button click handler
@@ -120,7 +121,7 @@ $(document).ready(function() {
      };
       $(this).prev().val("");
      controller.sendMessage(message);
-  })
+  });
 
   // Room pulldown select click handler
   // ==========================================================================
@@ -135,8 +136,5 @@ $(document).ready(function() {
         roomSelected = false;
       }
    });
-
-
-
 
 });
