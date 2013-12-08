@@ -19,11 +19,24 @@ var _messages = [chatMessage];
 
 var messageData = { results: _messages };
 
+var statusCode = 200; // default status code
+
+var saveMessages = function(request){
+  statusCode = 201;
+  request.setEncoding('utf8');
+
+  collectData(request);
+};
+
 var collectData = function(request) {
   request.on('data', function(chunk) {
     _messages.push(JSON.parse(chunk));
   });
 };
+
+
+// if responseBody is not defined below, this is the default body
+var responseBody;
 
 exports.handleRequest = function(request, response) {
 
@@ -37,21 +50,12 @@ exports.handleRequest = function(request, response) {
     return _.where(_messages, {roomname: roomToFilter});
   };
 
-  // if responseBody is not defined below, this is the default body
-  var responseBody = [];
 
   console.log("Serving request type " + request.method + " for url " + request.url);
 
-  var statusCode = 404;
-  // var urlSlicer = function();
-
   // Request filter
   if (request.method === 'POST') {
-    statusCode = 201;
-    request.setEncoding('utf8');
-
-    collectData(request, response);
-
+    saveMessages(request);
   } else if (request.method === 'GET') {
     console.log("requesting messages");
     statusCode = 200;
