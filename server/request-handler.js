@@ -18,6 +18,25 @@ var dummyMessage = {
 var messageStore = 'chats.txt';
 var messages = [dummyMessage];
 
+var writeChatsToFile = function(filename, chats) {
+  fs.writeFile(filename, JSON.stringify(chats), function(err) {
+    if (err) { throw err; }
+    console.log("chats file has been updated");
+  });
+};
+
+var readChatsFromFile = function(filename) {
+  var chats = [];
+
+  fs.readFile(filename, function(err, data) {
+    if (err) { throw err; }
+    console.log(data);
+    chats = JSON.parse(data);
+  });
+  debugger;
+  return chats
+};
+
 var roomnameFilter = function(roomToFilter) {
   return _.where(messages, {roomname: roomToFilter});
 };
@@ -49,11 +68,8 @@ var saveMessages = function(request, response){
     chat += chunk;
   });
   request.on('end', function() {
-    fs.appendFile(messageStore, JSON.stringify(chat), function(err) {
-      if (err) { throw err; }
-      console.log(' chat was saved successfully!');
-    });
     messages.push(chat);
+    writeChatsToFile(messageStore, messages);
     sendResponse(response, "", 201);
   });
 };
