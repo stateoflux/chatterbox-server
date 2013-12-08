@@ -1,13 +1,12 @@
 var _ = require('underscore')._;
 
-var defaultCorsHeaders = {
+var headers = {
   "access-control-allow-origin": "*",
   "access-control-allow-methods": "GET, POST, PUT, DELETE, OPTIONS",
   "access-control-allow-headers": "content-type, accept",
-  "access-control-max-age": 10 // Seconds.
+  "access-control-max-age": 10, // Seconds.
+  'Content-Type': "application/json"
 };
-
-
 
 var chatMessage = {
       'username': 'batman',  // gets username from url
@@ -15,11 +14,18 @@ var chatMessage = {
        'roomname': 'lobby'
      };
 
+// if responseBody is not defined below, this is the default body
+var responseBody;
+
 var _messages = [chatMessage];
 
 var messageData = { results: _messages };
 
 var statusCode = 200; // default status code
+
+var roomnameFilter = function(roomToFilter) {
+  return _.where(_messages, {roomname: roomToFilter});
+};
 
 var sendMessages = function(request) {
   console.log("requesting messages");
@@ -48,19 +54,6 @@ var collectData = function(request) {
   });
 };
 
-// helper function to remove additional url information
-var urlSplicer = function(url) {
-  var index = url.indexOf('?');
-  return url.slice(0,index);
-};
-
-var roomnameFilter = function(roomToFilter) {
-  return _.where(_messages, {roomname: roomToFilter});
-};
-
-// if responseBody is not defined below, this is the default body
-var responseBody;
-
 var actionList = {
   'GET': sendMessages,
   'POST': saveMessages,
@@ -72,10 +65,6 @@ exports.handleRequest = function(request, response) {
   console.log("Serving request type " + request.method + " for url " + request.url);
 
   actionList[request.method](request);
-
-  var headers = defaultCorsHeaders;
-
-  headers['Content-Type'] = "text/json";
 
   // once request finishes sending, we can send response via this callback function
   request.on('end', function() {
