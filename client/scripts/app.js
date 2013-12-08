@@ -48,7 +48,7 @@ var makeController = function() {
       var that = this;
       this.promise.done(function() {
         // debugger;
-        for (var i = messages.length - 1; i > messages.length - 20; i--) {
+        for (var i = messages.length - 1; i > 0; i--) {
           // debugger;
           // console.log("renderMessages: " + that.currentRoom);
           // debugger;
@@ -88,7 +88,7 @@ $(document).ready(function() {
     // debugger;
     $('.dyn-room').remove();
     _.each(rooms, function(value, room){
-      console.log(room);
+      // console.log(room);
       escapedRoom = escapeHtml(room, 20);
       selectStr = '<option class="dyn-room" value="' + escapedRoom + '">' + escapedRoom + '</option>';
       $('.rooms select').append($(selectStr));
@@ -131,10 +131,11 @@ $(document).ready(function() {
       var $selVal = $(this).val()
       if ($selVal !== "all_rooms") {
         // debugger;
+        url = "http://127.0.0.1:8080/classes/taqueria";
         controller.currentRoom = $selVal;
         roomSelected = true;
       } else {
-        roomSelected = false;
+        roomSelected = false
       }
    });
 
