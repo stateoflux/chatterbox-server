@@ -1,3 +1,4 @@
+var fs = require('fs');
 var _ = require('underscore')._;
 
 var headers = {
@@ -13,6 +14,8 @@ var dummyMessage = {
   'text': 'Pow',
   'roomname': 'lobby'
 };
+// TODO: move message store to a file
+var messageStore = 'chats.txt';
 var messages = [dummyMessage];
 
 var roomnameFilter = function(roomToFilter) {
@@ -40,14 +43,18 @@ var returnMessages = function(request, response) {
 
 // Save received chat messages into storage
 var saveMessages = function(request, response){
-  var partialMessage = "";
+  var chat = "";
   request.setEncoding('utf8');
   request.on('data', function(chunk) {
-    partialMessage += chunk;
+    chat += chunk;
   });
   request.on('end', function() {
-    messages.push(partialMessage);
-    sendResponse(response, "", status);
+    fs.appendFile(messageStore, JSON.stringify(chat), function(err) {
+      if (err) { throw err; }
+      console.log(' chat was saved successfully!');
+    });
+    messages.push(chat);
+    sendResponse(response, "", 201);
   });
 };
 
