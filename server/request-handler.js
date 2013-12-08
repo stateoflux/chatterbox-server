@@ -21,6 +21,20 @@ var messageData = { results: _messages };
 
 var statusCode = 200; // default status code
 
+var sendMessages = function(request) {
+  console.log("requesting messages");
+  statusCode = 200;
+  paths = request.url.slice(1).split('/');
+  console.log(paths);
+  if (paths[0] === 'classes' && paths[1] === 'messages') {
+    responseBody = _messages;
+  } else if(paths[0] === 'classes' && paths[1] !=='messages') {
+    responseBody = roomnameFilter(paths[1]);  // function to filter messages
+  } else {
+    statusCode = 404;
+  }
+};
+
 var saveMessages = function(request){
   statusCode = 201;
   request.setEncoding('utf8');
@@ -34,44 +48,30 @@ var collectData = function(request) {
   });
 };
 
+// helper function to remove additional url information
+var urlSplicer = function(url) {
+  var index = url.indexOf('?');
+  return url.slice(0,index);
+};
+
+var roomnameFilter = function(roomToFilter) {
+  return _.where(_messages, {roomname: roomToFilter});
+};
 
 // if responseBody is not defined below, this is the default body
 var responseBody;
 
+var actionList = {
+  'GET': sendMessages,
+  'POST': saveMessages,
+  'OPTIONS': function(){statusCode = 200;}
+};
+
 exports.handleRequest = function(request, response) {
-
-  // helper function to remove additional url information
-  var urlSplicer = function(url) {
-    var index = url.indexOf('?');
-    return url.slice(0,index);
-  };
-
-  var roomnameFilter = function(roomToFilter) {
-    return _.where(_messages, {roomname: roomToFilter});
-  };
-
 
   console.log("Serving request type " + request.method + " for url " + request.url);
 
-  // Request filter
-  if (request.method === 'POST') {
-    saveMessages(request);
-  } else if (request.method === 'GET') {
-    console.log("requesting messages");
-    statusCode = 200;
-    paths = request.url.slice(1).split('/');
-    console.log(paths);
-    if (paths[0] === 'classes' && paths[1] === 'messages') {
-      responseBody = _messages;
-    } else if(paths[0] === 'classes' && paths[1] !=='messages') {
-      responseBody = roomnameFilter(paths[1]);  // function to filter messages
-    } else {
-      statusCode = 404;
-    }
-
-  } else if (request.method === 'OPTIONS') {
-    statusCode = 200;
-  }
+  actionList[request.method](request);
 
   var headers = defaultCorsHeaders;
 
