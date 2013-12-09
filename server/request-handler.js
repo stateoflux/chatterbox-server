@@ -17,6 +17,13 @@ var dummyMessage = {
 // TODO: move message store to a file
 var messageStore = 'chats.txt';
 var messages = [];
+var objectId = 1000;
+
+var addMeta = function(chat) {
+  chat.createdAt = new Date();
+  chat.objectId = objectId++;
+  return chat;
+}
 
 var writeChatsToFile = function(filename, chats) {
   fs.writeFile(filename, JSON.stringify(chats), function(err) {
@@ -68,12 +75,15 @@ var returnMessages = function(request, response) {
 // Save received chat messages into storage
 var saveMessages = function(request, response){
   var chat = "";
+  var properChat = null;
+
   request.setEncoding('utf8');
   request.on('data', function(chunk) {
     chat += chunk;
   });
   request.on('end', function() {
-    messages.push(JSON.parse(chat));
+    properChat = addMeta(JSON.parse(chat));
+    messages.push(properChat);
     writeChatsToFile(messageStore, messages);
     sendResponse(response, "", 201);
   });
@@ -89,17 +99,15 @@ var actionList = {
   'OPTIONS': respondToOptions
 };
 
-
 // Initialize messages array from the messageStore ('chats.txt')
 // ============================================================================
 var updateMessages = function() {
-  readChatsFromFile(messageStore);
-  emitter.on('chatsReady', function() {
+  //emitter.on('chatsReady', function() {
     debugger;
-  })
 };
 
-updateMessages();
+readChatsFromFile(messageStore);
+// updateMessages();
 
 // Request Handler
 // ============================================================================
