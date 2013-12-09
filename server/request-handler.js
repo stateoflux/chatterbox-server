@@ -1,6 +1,5 @@
 var fs = require('fs');
 var _ = require('underscore')._;
-var EventEmitter = require('events').EventEmitter;
 
 var headers = {
   "access-control-allow-origin": "*",
@@ -26,29 +25,17 @@ var writeChatsToFile = function(filename, chats) {
   });
 };
 
-
-// Setup event emitter and listener in order for code to read in the 
-// chats from the message store file before the instantiating the chat
-// server
-// ============================================================================
-var emitter = new EventEmitter();
-var listener = new EventEmitter();
-
 var readChatsFromFile = function(filename) {
   var storedChats = null;
-  var chats = [];
 
   fs.readFile(filename, { encoding: 'utf-8' }, function(err, data) {
     if (err) { console.log("error!"); throw err; }
     console.log("from file: " +  data);
-    debugger;
     try {
       storedChats = JSON.parse(data);
       if (Array.isArray(storedChats)) {
-        chats = storedChats;
+        messages = storedChats;
       }
-      emitter.emit('chatsReady');
-      return chats;
     } catch (e) {
       console.log("error thrown while parsing 'chats.txt'", e);
     }
@@ -106,10 +93,9 @@ var actionList = {
 // Initialize messages array from the messageStore ('chats.txt')
 // ============================================================================
 var updateMessages = function() {
-  debugger;
-  var chats = readChatsFromFile(messageStore);
-  listener.on('chatsReady', function() {
-    messages = chats;
+  readChatsFromFile(messageStore);
+  emitter.on('chatsReady', function() {
+    debugger;
   })
 };
 
