@@ -1,13 +1,13 @@
 var http = require("http");
 var url = require("url");
+var fs = require("fs");
 var requestHandler = require("./request-handler");
 var port = 8081;
 var ip = "127.0.0.1";
 
+var rootHandler = requestHandler.rootHandler;
 var messageHandler = requestHandler.handleRequest;
-var rootHandler = function() {
-  console.log("will serve index.html soon")
-}
+
 
 var router = {
   "/": rootHandler,

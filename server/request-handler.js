@@ -116,3 +116,13 @@ exports.handleRequest = function(request, response) {
   actionList[request.method](request, response);
 };
 
+exports.rootHandler = function(request, response) {
+  console.log("will serve index.html soon")
+  fs.readFile("../client/index.html", function(err, data) {
+    debugger;
+    if (err) { throw err; }
+    response.writeHead(200, headers);
+    response.end(data);
+  });
+};
+
