@@ -37,22 +37,21 @@ var listener = new EventEmitter();
 var readChatsFromFile = function(filename) {
   var storedChats = null;
   var chats = [];
-  debugger;
 
   fs.readFile(filename, { encoding: 'utf-8' }, function(err, data) {
     if (err) { console.log("error!"); throw err; }
     console.log("from file: " +  data);
+    debugger;
     try {
       storedChats = JSON.parse(data);
+      if (Array.isArray(storedChats)) {
+        chats = storedChats;
+      }
+      emitter.emit('chatsReady');
+      return chats;
     } catch (e) {
       console.log("error thrown while parsing 'chats.txt'", e);
     }
-    // in case the file is empty
-    if (Array.isArray(storedChats)) {
-      chats = storedChats;
-    }
-    emitter.emit('chatsReady');
-    return chats;
   });
 };
 
@@ -87,7 +86,7 @@ var saveMessages = function(request, response){
     chat += chunk;
   });
   request.on('end', function() {
-    messages.push(chat);
+    messages.push(JSON.parse(chat));
     writeChatsToFile(messageStore, messages);
     sendResponse(response, "", 201);
   });
