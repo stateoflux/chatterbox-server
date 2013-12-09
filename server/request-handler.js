@@ -117,10 +117,12 @@ exports.handleRequest = function(request, response) {
 };
 
 exports.rootHandler = function(request, response) {
+  var newHeaders = headers;
   console.log("will serve index.html soon")
   fs.readFile("../client/index.html", function(err, data) {
     debugger;
     if (err) { throw err; }
+    newHeaders['Content-Type'] = 'text/html';
     response.writeHead(200, headers);
     response.end(data);
   });
