@@ -1,5 +1,6 @@
 var fs = require('fs');
 var _ = require('underscore')._;
+var EventEmitter = require('events').EventEmitter;
 
 var headers = {
   "access-control-allow-origin": "*",
@@ -16,7 +17,7 @@ var dummyMessage = {
 };
 // TODO: move message store to a file
 var messageStore = 'chats.txt';
-var messages = [dummyMessage];
+var messages = [];
 
 var writeChatsToFile = function(filename, chats) {
   fs.writeFile(filename, JSON.stringify(chats), function(err) {
@@ -25,16 +26,34 @@ var writeChatsToFile = function(filename, chats) {
   });
 };
 
-var readChatsFromFile = function(filename) {
-  var chats = [];
 
-  fs.readFile(filename, function(err, data) {
-    if (err) { throw err; }
-    console.log(data);
-    chats = JSON.parse(data);
-  });
+// Setup event emitter and listener in order for code to read in the 
+// chats from the message store file before the instantiating the chat
+// server
+// ============================================================================
+var emitter = new EventEmitter();
+var listener = new EventEmitter();
+
+var readChatsFromFile = function(filename) {
+  var storedChats = null;
+  var chats = [];
   debugger;
-  return chats
+
+  fs.readFile(filename, { encoding: 'utf-8' }, function(err, data) {
+    if (err) { console.log("error!"); throw err; }
+    console.log("from file: " +  data);
+    try {
+      storedChats = JSON.parse(data);
+    } catch (e) {
+      console.log("error thrown while parsing 'chats.txt'", e);
+    }
+    // in case the file is empty
+    if (Array.isArray(storedChats)) {
+      chats = storedChats;
+    }
+    emitter.emit('chatsReady');
+    return chats;
+  });
 };
 
 var roomnameFilter = function(roomToFilter) {
@@ -83,6 +102,19 @@ var actionList = {
   'POST': saveMessages,
   'OPTIONS': respondToOptions
 };
+
+
+// Initialize messages array from the messageStore ('chats.txt')
+// ============================================================================
+var updateMessages = function() {
+  debugger;
+  var chats = readChatsFromFile(messageStore);
+  listener.on('chatsReady', function() {
+    messages = chats;
+  })
+};
+
+updateMessages();
 
 // Request Handler
 // ============================================================================
